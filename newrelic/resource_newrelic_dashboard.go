@@ -111,6 +111,14 @@ func resourceNewRelicDashboard() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"threshold_red": {
+							Type:     schema.TypeFloat,
+							Optional: true,
+						},
+						"threshold_yellow": {
+							Type:     schema.TypeFloat,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -130,9 +138,11 @@ func resourceNewRelicDashboardWidgetsHash(v interface{}) int {
 	title := m["title"].(string)
 	notes := m["notes"].(string)
 	viz := m["visualization"].(string)
+	red := m["threshold_red"].(float64)
+	yellow := m["threshold_yellow"].(float64)
 
-	buf.WriteString(fmt.Sprintf("%d-%d-%d-%d-%s-%s-%s-%s",
-		row, column, width, height, nrql, title, viz, notes))
+	buf.WriteString(fmt.Sprintf("%d-%d-%d-%d-%s-%s-%s-%s-%f-%f",
+		row, column, width, height, nrql, title, viz, notes, red, yellow))
 
 	return hashcode.String(buf.String())
 }
@@ -191,6 +201,11 @@ func expandDashboard(d *schema.ResourceData) *newrelic.Dashboard {
 				Notes: w["notes"].(string),
 			}
 
+			widgetPresentation.Threshold = &newrelic.DashboardWidgetThreshold{
+				Red:    w["threshold_red"].(float64),
+				Yellow: w["threshold_yellow"].(float64),
+			}
+
 			widgetLayout := newrelic.DashboardWidgetLayout{
 				Row:    w["row"].(int),
 				Column: w["column"].(int),
@@ -242,7 +257,11 @@ func flattenDashboard(dashboard *newrelic.Dashboard, d *schema.ResourceData) err
 		values["width"] = widget.Layout.Width
 		values["height"] = widget.Layout.Height
 
-		// TODO: Support non-NRQL Widgets
+		if widget.Presentation.Threshold != nil {
+			values["threshold_red"] = widget.Presentation.Threshold.Red
+			values["threshold_yellow"] = widget.Presentation.Threshold.Yellow
+		}
+
 		if len(widget.Data) > 0 {
 			values["nrql"] = widget.Data[0].NRQL
 		}

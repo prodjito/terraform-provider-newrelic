@@ -186,18 +186,22 @@ resource "newrelic_dashboard" "foo" {
     ]
   }
   widget {
-    title         = "Average Transaction Duration"
-    visualization = "faceted_line_chart"
-    column        = 1
-    row           = 1
-    nrql          = "SELECT PERCENTILE(duration, 95) from Transaction FACET appName TIMESERIES auto"
+    title            = "Average Transaction Duration"
+    visualization    = "billboard"
+    column           = 1
+    row              = 1
+	nrql             = "SELECT PERCENTILE(duration, 95) from Transaction FACET appName TIMESERIES auto"
+	threshold_red    = 10
+	threshold_yellow = 5
   }
   widget {
-    title         = "Page Views"
-	visualization = "faceted_line_chart"
-	column        = 1
-	row           = 2
-    nrql          = "SELECT AVERAGE(duration) from PageView FACET appName TIMESERIES auto"
+    title            = "Page Views"
+	visualization    = "billboard"
+	column           = 1
+	row              = 2
+    nrql             = "SELECT AVERAGE(duration) from PageView FACET appName TIMESERIES auto"
+	threshold_red    = 10
+	threshold_yellow = 5
   }
 }
 `, rName)
@@ -217,18 +221,22 @@ resource "newrelic_dashboard" "foo" {
     ]
   }
   widget {
-    title         = "Average Transaction Duration"
-    visualization = "faceted_line_chart"
-    column        = 1
-    row           = 1
-    nrql          = "SELECT PERCENTILE(duration, 50) from Transaction FACET appName TIMESERIES auto"
+    title            = "Average Transaction Duration"
+    visualization    = "billboard"
+    column           = 1
+    row              = 1
+    nrql             = "SELECT PERCENTILE(duration, 50) from Transaction FACET appName TIMESERIES auto"
+	threshold_red    = 10
+	threshold_yellow = 5
   }
   widget {
-    title         = "Page Views"
-    visualization = "faceted_line_chart"
-    column        = 1
-    row           = 2
-    nrql          = "SELECT AVERAGE(duration) from PageView FACET appName TIMESERIES auto"
+    title            = "Page Views"
+    visualization    = "billboard"
+    column           = 1
+    row              = 2
+    nrql             = "SELECT AVERAGE(duration) from PageView FACET appName TIMESERIES auto"
+	threshold_red    = 10
+	threshold_yellow = 5
   }
 }
 `, rName)
@@ -248,11 +256,13 @@ resource "newrelic_dashboard" "foo" {
     ]
   }
   widget {
-    title         = "Average Transaction Duration"
-    visualization = "faceted_line_chart"
-    column        = 1
-    row           = 1
-    nrql          = "SELECT AVERAGE(duration) from Transaction FACET appName TIMESERIES auto"
+    title            = "Average Transaction Duration"
+    visualization    = "billboard"
+    column           = 1
+    row              = 1
+	nrql             = "SELECT AVERAGE(duration) from Transaction FACET appName TIMESERIES auto"
+	threshold_red    = 10
+	threshold_yellow = 5
   }
 }
 `, rName)
@@ -264,11 +274,13 @@ resource "newrelic_dashboard" "foo" {
   title = "%s"
 
   widget {
-    title         = "Average Transaction Duration"
-    visualization = "faceted_line_chart"
-    column        = 1
-    row           = 1
-    nrql          = "SELECT AVERAGE(duration) from Transaction FACET appName TIMESERIES auto"
+    title            = "Average Transaction Duration"
+    visualization    = "billboard"
+    column           = 1
+    row              = 1
+	nrql             = "SELECT AVERAGE(duration) from Transaction FACET appName TIMESERIES auto"
+	threshold_red    = 10
+	threshold_yellow = 5
   }
 }
 `, rName)
