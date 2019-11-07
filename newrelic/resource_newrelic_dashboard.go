@@ -78,7 +78,7 @@ func resourceNewRelicDashboard() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"title": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"visualization": {
 							Type:     schema.TypeString,
@@ -106,6 +106,10 @@ func resourceNewRelicDashboard() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"source": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						// TODO: Move this to a set/map?
 						"nrql": {
 							Type:     schema.TypeString,
@@ -130,9 +134,10 @@ func resourceNewRelicDashboardWidgetsHash(v interface{}) int {
 	title := m["title"].(string)
 	notes := m["notes"].(string)
 	viz := m["visualization"].(string)
+	src := m["source"].(string)
 
-	buf.WriteString(fmt.Sprintf("%d-%d-%d-%d-%s-%s-%s-%s",
-		row, column, width, height, nrql, title, viz, notes))
+	buf.WriteString(fmt.Sprintf("%d-%d-%d-%d-%s-%s-%s-%s-%s",
+		row, column, width, height, nrql, title, viz, notes, src))
 
 	return hashcode.String(buf.String())
 }
@@ -201,7 +206,8 @@ func expandDashboard(d *schema.ResourceData) *newrelic.Dashboard {
 			// TODO: Support non-NRQL Widgets
 			widgetData := []newrelic.DashboardWidgetData{
 				{
-					NRQL: w["nrql"].(string),
+					NRQL:   w["nrql"].(string),
+					Source: w["source"].(string),
 				},
 			}
 
@@ -245,6 +251,7 @@ func flattenDashboard(dashboard *newrelic.Dashboard, d *schema.ResourceData) err
 		// TODO: Support non-NRQL Widgets
 		if len(widget.Data) > 0 {
 			values["nrql"] = widget.Data[0].NRQL
+			values["source"] = widget.Data[0].Source
 		}
 		widgetSet.Add(values)
 	}

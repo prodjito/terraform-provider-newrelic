@@ -98,6 +98,41 @@ func TestAccNewRelicDashboard_Basic(t *testing.T) {
 	})
 }
 
+func TestAccNewRelicDashboard_MarkdownWidget(t *testing.T) {
+	rName := fmt.Sprintf("tf-test-%s", acctest.RandString(5))
+	rSource := "#h1 heading"
+	rSourceUpdated := "#h2 heading"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNewRelicDashboardDestroy,
+		Steps: []resource.TestStep{
+			// Check exists
+			{
+				Config: testAccNewRelicDashboardMarkdownWidget(rName, rSource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNewRelicDashboardExists("newrelic_dashboard.foo"),
+					resource.TestCheckResourceAttr(
+						"newrelic_dashboard.foo", "widget.#", "1"),
+					resource.TestCheckResourceAttr(
+						"newrelic_dashboard.foo", "widget.1858253946.source", rSource),
+				),
+			},
+			// Update widget source
+			{
+				Config: testAccNewRelicDashboardMarkdownWidget(rName, rSourceUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNewRelicDashboardExists("newrelic_dashboard.foo"),
+					resource.TestCheckResourceAttr(
+						"newrelic_dashboard.foo", "widget.#", "1"),
+					resource.TestCheckResourceAttr(
+						"newrelic_dashboard.foo", "widget.1464830143.source", rSourceUpdated),
+				),
+			},
+		},
+	})
+}
+
 func TestAccNewRelicDashboard(t *testing.T) {
 	resourceName := "newrelic_dashboard.foo"
 	rName := acctest.RandString(5)
@@ -272,4 +307,29 @@ resource "newrelic_dashboard" "foo" {
   }
 }
 `, rName)
+}
+
+func testAccNewRelicDashboardMarkdownWidget(rName, rSource string) string {
+	return fmt.Sprintf(`
+resource "newrelic_dashboard" "foo" {
+  title = "%s"
+
+  widget {
+    visualization = "markdown"
+    column        = 1
+    row           = 1
+    source        = "%s"
+  }
+}
+`, rName, rSource)
+}
+
+// A custom check function to log the state during a test run.
+// This is useful to find the individual widget hash values when writing assertions against them.
+func logState(t *testing.T) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		t.Logf("State: %s\n", s)
+
+		return nil
+	}
 }
